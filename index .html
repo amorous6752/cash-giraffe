@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How the Cash Giraffe Rewards App Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EC;
+    --paper-2:#F3EBDA;
+    --ink:#14241D;
+    --muted:#6B7C72;
+    --forest:#0B3D2E;
+    --grass:#1FA85A;
+    --grass-deep:#147B41;
+    --amber:#F2A20C;
+    --amber-deep:#C97D00;
+    --persimmon:#E0552C;
+    --line:#DBD0BC;
+    --radius:18px;
+    --shadow:0 1px 0 rgba(20,36,29,.04), 0 18px 40px -28px rgba(11,61,46,.45);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 12% -5%, rgba(31,168,90,.10), transparent 40%),
+      radial-gradient(circle at 95% 8%, rgba(242,162,12,.10), transparent 38%);
+  }
+
+  .wrap{max-width:1020px;margin:0 auto;padding:0 24px;}
+
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--grass-deep);
+    display:inline-flex;align-items:center;gap:9px;
+  }
+  .eyebrow::before{
+    content:"";width:8px;height:8px;border-radius:50%;
+    background:var(--grass);box-shadow:0 0 0 4px rgba(31,168,90,.18);
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:64px 0 40px;}
+  .hero-single{max-width:760px;}
+  .hero-grid{
+    display:grid;grid-template-columns:1.55fr .9fr;gap:40px;align-items:center;
+  }
+  .hero-single .lede{
+    font-size:19px;
+    line-height:1.55;
+    color:#33453B;
+    max-width:50ch;
+    margin-top:20px;
+  }
+  .hero-single .lede strong{color:var(--ink);font-weight:600;}
+  h1{
+    font-family:"Bricolage Grotesque",sans-serif;
+    font-weight:800;
+    font-size:clamp(34px,5.4vw,58px);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    margin:18px 0 0;
+    color:var(--forest);
+  }
+  h1 .pay{
+    color:var(--amber-deep);
+    background:linear-gradient(180deg,transparent 62%, rgba(242,162,12,.28) 62%);
+    padding:0 .04em;
+  }
+  .lede{margin:22px 0 0;font-size:18px;color:#33453B;max-width:46ch;}
+  .lede strong{color:var(--ink);font-weight:600;}
+
+  /* payout chip / mascot stand-in */
+  .chip{
+    position:relative;
+    background:var(--forest);
+    color:var(--paper);
+    border-radius:24px;
+    padding:30px 28px 26px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .chip::after{ /* savanna spots motif, not a brand logo */
+    content:"";position:absolute;inset:0;opacity:.18;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 78% 22%, var(--amber) 0 10px, transparent 11px),
+      radial-gradient(circle at 92% 60%, var(--grass) 0 7px, transparent 8px),
+      radial-gradient(circle at 64% 80%, var(--amber) 0 5px, transparent 6px),
+      radial-gradient(circle at 84% 88%, var(--paper) 0 4px, transparent 5px);
+  }
+  .chip .k{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#9FD9B6;}
+  .chip .amt{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:64px;line-height:1;margin:6px 0 2px;color:#fff;}
+  .chip .amt span{color:var(--amber);}
+  .chip .per{font-size:14px;color:#CDE7D6;margin-bottom:18px;}
+  .chip .tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip .tag{
+    font-family:"Space Mono",monospace;font-size:12px;font-weight:700;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);
+    color:#EAF6EE;padding:5px 10px;border-radius:8px;
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{padding:30px 0;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;}
+  .sec-num{
+    font-family:"Space Mono",monospace;font-weight:700;font-size:14px;
+    color:var(--amber-deep);border:1.5px solid var(--amber);border-radius:8px;
+    padding:2px 9px;flex:none;
+  }
+  h2{
+    font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+    font-size:clamp(24px,3.4vw,32px);letter-spacing:-.015em;margin:0;color:var(--forest);
+  }
+
+  /* ---------- THE DEAL ---------- */
+  .deal{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  }
+  .deal .cell{background:var(--paper);padding:20px 22px;}
+  .deal .lab{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .deal .val{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:23px;margin-top:6px;color:var(--ink);}
+  .deal .val.money{color:var(--amber-deep);}
+
+  /* ---------- HOW-TO STEPS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .step{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px 22px 22px;position:relative;
+  }
+  .step .ord{
+    font-family:"Space Mono",monospace;font-weight:700;font-size:13px;color:var(--grass-deep);
+    letter-spacing:.1em;
+  }
+  .step h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:20px;margin:8px 0 8px;color:var(--forest);}
+  .step p{margin:0;font-size:15.5px;color:#3B4D43;}
+  .step .ico{
+    width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+    background:rgba(31,168,90,.12);margin-bottom:4px;
+  }
+  .step .ico svg{width:22px;height:22px;stroke:var(--grass-deep);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* signature: 30s confirmation ring */
+  .demo{
+    margin-top:22px;background:var(--forest);border-radius:var(--radius);
+    color:var(--paper);padding:26px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;
+    box-shadow:var(--shadow);
+  }
+  .ring-box{position:relative;width:128px;height:128px;flex:none;}
+  .ring-box svg{transform:rotate(-90deg);width:128px;height:128px;}
+  .ring-bg{stroke:rgba(255,255,255,.14);}
+  .ring-fg{stroke:var(--amber);stroke-linecap:round;transition:stroke-dashoffset .25s linear;}
+  .ring-fg.done{stroke:var(--grass);}
+  .ring-num{
+    position:absolute;inset:0;display:grid;place-content:center;text-align:center;
+    font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+  }
+  .ring-num .n{font-size:38px;line-height:1;color:#fff;}
+  .ring-num .u{font-family:"Space Mono",monospace;font-weight:700;font-size:11px;letter-spacing:.14em;color:#9FD9B6;text-transform:uppercase;}
+  .demo .copy h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:21px;margin:0 0 6px;color:#fff;}
+  .demo .copy p{margin:0 0 16px;color:#CDE7D6;font-size:15px;max-width:42ch;}
+  .demo .status{font-family:"Space Mono",monospace;font-size:14px;color:var(--amber);min-height:1.2em;}
+  .demo .status.confirmed{color:#7DE3A4;}
+  .btn{
+    font-family:"Inter",sans-serif;font-weight:600;font-size:15px;cursor:pointer;
+    background:var(--amber);color:#3B2A00;border:none;border-radius:11px;padding:11px 20px;
+    transition:transform .12s ease, filter .12s ease;
+  }
+  .btn:hover{filter:brightness(1.06);}
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+
+  /* ---------- WHY LOCKED ---------- */
+  .locks{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .lock{
+    background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--persimmon);
+    border-radius:var(--radius);padding:24px;
+  }
+  .lock .tagline{
+    font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--persimmon);font-weight:700;
+  }
+  .lock h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:21px;margin:8px 0 10px;color:var(--forest);}
+  .lock p{margin:0;font-size:15.5px;color:#3B4D43;}
+  .lock p strong{color:var(--ink);}
+
+  /* ---------- HONESTY FOOTER ---------- */
+  .honesty{
+    margin-top:14px;background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px 30px;
+  }
+  .honesty h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:20px;margin:0 0 8px;color:var(--forest);}
+  .honesty p{margin:0;color:#3B4D43;font-size:15.5px;}
+  .honesty .kill{color:var(--persimmon);font-weight:600;}
+
+  footer{padding:34px 0 60px;color:var(--muted);font-family:"Space Mono",monospace;font-size:12.5px;letter-spacing:.04em;}
+  footer .rule{height:1px;background:var(--line);margin-bottom:18px;}
+
+  /* ---------- CTA ---------- */
+  .cta-block{margin-top:30px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+  .cta-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:19px;
+    text-decoration:none;cursor:pointer;
+    background:var(--grass);color:#06311E;
+    border:none;border-radius:14px;padding:16px 30px;
+    box-shadow:0 10px 24px -10px rgba(20,123,65,.7);
+    transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+  }
+  .cta-btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 14px 30px -12px rgba(20,123,65,.8);}
+  .cta-btn:active{transform:translateY(0);}
+  .cta-btn:focus-visible{outline:3px solid var(--forest);outline-offset:3px;}
+  .cta-btn .arrow{transition:transform .15s ease;}
+  .cta-btn:hover .arrow{transform:translateX(3px);}
+  .cta-note{
+    font-family:"Space Mono",monospace;font-size:12.5px;letter-spacing:.04em;
+    color:var(--muted);margin:0;
+  }
+  /* non-Android notice (shown by JS) */
+  .cta-gate{
+    display:none;align-items:center;gap:12px;
+    background:var(--paper-2);border:1px solid var(--line);border-left:4px solid var(--amber);
+    border-radius:14px;padding:16px 20px;max-width:520px;
+  }
+  .cta-gate .badge{font-size:24px;line-height:1;}
+  .cta-gate p{margin:0;font-size:15px;color:#3B4D43;}
+  .cta-gate strong{color:var(--forest);}
+
+  /* closing CTA */
+  .cta-final{
+    background:var(--forest);border-radius:24px;color:var(--paper);
+    padding:48px 40px;text-align:center;margin-top:8px;position:relative;overflow:hidden;
+  }
+  .cta-final::after{
+    content:"";position:absolute;inset:0;opacity:.16;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 88% 18%, var(--amber) 0 12px, transparent 13px),
+      radial-gradient(circle at 12% 84%, var(--grass) 0 8px, transparent 9px);
+  }
+  .cta-final h2{color:#fff;margin:0 0 10px;}
+  .cta-final p{color:#CDE7D6;margin:0 auto 24px;max-width:42ch;font-size:16px;}
+  .cta-final .cta-block{align-items:center;}
+  .cta-final .cta-gate{margin:0 auto;}
+  .cta-final .cta-note{color:#9FD9B6;}
+
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:30px;}
+    .deal{grid-template-columns:1fr 1fr;}
+    .steps{grid-template-columns:1fr;}
+    .locks{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    body{font-size:16px;}
+    .deal{grid-template-columns:1fr;}
+    .demo{grid-template-columns:1fr;text-align:center;justify-items:center;}
+    .demo .copy p{margin-left:auto;margin-right:auto;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .ring-fg{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-single">
+      <span class="eyebrow">Free rewards app</span>
+      <h1>Play games. Earn rewards. On your Android phone.</h1>
+      <p class="lede">Cash Giraffe is a free app that gives you points for playing games and trying new apps — points you can redeem for rewards. Here's how to get started in under a minute.</p>
+      <div class="cta-block">
+        <a class="cta-btn js-cta" href="https://rileymarker.com/show.php?l=0&u=650778&id=71396" rel="sponsored nofollow noopener">Get Cash Giraffe <span class="arrow">→</span></a>
+        <p class="cta-note">Free · Android · United States</p>
+        <div class="cta-gate js-gate" aria-hidden="true">
+          <span class="badge">📱</span>
+          <p><strong>Best on Android.</strong> Cash Giraffe is an Android app — open this page on your Android phone to install it.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- AT A GLANCE -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>At a glance</h2>
+    </div>
+    <div class="deal">
+      <div class="cell"><div class="lab">Price</div><div class="val money">Free</div></div>
+      <div class="cell"><div class="lab">Available in</div><div class="val">United States</div></div>
+      <div class="cell"><div class="lab">Works on</div><div class="val">Android</div></div>
+    </div>
+  </section>
+
+  <!-- HOW TO START -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>How to get started</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg></div>
+        <div class="ord">STEP 01</div>
+        <h3>Install the app</h3>
+        <p>Tap the button to open <em>Cash Giraffe: Games &amp; Rewards</em> on Google Play, then install it. It's free, with no purchase needed.</p>
+      </div>
+      <div class="step">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <div class="ord">STEP 02</div>
+        <h3>Open it</h3>
+        <p>Launch Cash Giraffe and sign in. Setup is quick — you'll be on the home screen in a few seconds.</p>
+      </div>
+      <div class="step">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
+        <div class="ord">STEP 03</div>
+        <h3>Start earning</h3>
+        <p>Play featured games and try new apps to collect points. Spend a little time in the app and your rewards begin adding up.</p>
+      </div>
+    </div>
+
+    <!-- SIGNATURE: quick-start ring -->
+    <div class="demo">
+      <div class="ring-box">
+        <svg viewBox="0 0 128 128" aria-hidden="true">
+          <circle class="ring-bg" cx="64" cy="64" r="56" fill="none" stroke-width="12"></circle>
+          <circle class="ring-fg" id="ringFg" cx="64" cy="64" r="56" fill="none" stroke-width="12"
+                  stroke-dasharray="351.86" stroke-dashoffset="351.86"></circle>
+        </svg>
+        <div class="ring-num"><span class="n" id="ringN">0</span><span class="u">seconds</span></div>
+      </div>
+      <div class="copy">
+        <h3>Up and running fast</h3>
+        <p>From tapping install to exploring the app takes about half a minute. Tap below to see how quick it is.</p>
+        <button class="btn" id="demoBtn">Show me</button>
+        <div class="status" id="demoStatus" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO CAN USE IT -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Who can use it</h2>
+    </div>
+    <div class="locks">
+      <div class="lock">
+        <div class="tagline">Location</div>
+        <h3>United States</h3>
+        <p>Cash Giraffe is currently available to users in the <strong>United States</strong>. If you're outside the US, the app may not be available to you yet.</p>
+      </div>
+      <div class="lock">
+        <div class="tagline">Device</div>
+        <h3>Android phones &amp; tablets</h3>
+        <p>The app lives on <strong>Google Play</strong>, so you'll need an Android device to install it. It isn't available on iPhone or iPad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING CTA -->
+  <section>
+    <div class="cta-final">
+      <h2>Ready to give it a try?</h2>
+      <p>Install Cash Giraffe free from Google Play, open it, and start collecting rewards. It takes less than a minute to set up.</p>
+      <div class="cta-block">
+        <a class="cta-btn js-cta" href="https://rileymarker.com/show.php?l=0&u=650778&id=71396" rel="sponsored nofollow noopener">Get Cash Giraffe <span class="arrow">→</span></a>
+        <p class="cta-note">Free · Android · United States</p>
+        <div class="cta-gate js-gate" aria-hidden="true">
+          <span class="badge">📱</span>
+          <p><strong>Best on Android.</strong> Open this page on your Android phone to install.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCLOSURE -->
+  <section>
+    <div class="honesty">
+      <h3>A quick note</h3>
+      <p>This is a promotional page for Cash Giraffe, a third-party app available on Google Play. We may earn a commission if you install the app through the link on this page, at no extra cost to you. Rewards, payouts, and availability are set by Cash Giraffe and Google Play — not by this page — and can change at any time.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="rule"></div>
+    Cash Giraffe · Available on Google Play · 🇺🇸 United States · 🤖 Android · Not affiliated with or endorsed by Google.
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('demoBtn');
+    var ring = document.getElementById('ringFg');
+    var num = document.getElementById('ringN');
+    var status = document.getElementById('demoStatus');
+    var CIRC = 351.86;           // 2 * PI * r (r=56)
+    var TOTAL = 30;              // seconds represented
+    var running = false;
+
+    function reset(){
+      ring.style.strokeDashoffset = CIRC;
+      ring.classList.remove('done');
+      num.textContent = '0';
+      status.textContent = '';
+      status.classList.remove('confirmed');
+      btn.disabled = false;
+      btn.textContent = 'Show me';
+    }
+
+    function run(){
+      if(running) return;
+      running = true;
+      btn.disabled = true;
+      btn.textContent = 'Setting up…';
+      status.textContent = 'Getting the app ready…';
+      status.classList.remove('confirmed');
+      var sec = 0;
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var stepMs = reduce ? 30 : 280;   // demo cadence (sped up from real time)
+      var timer = setInterval(function(){
+        sec++;
+        num.textContent = sec;
+        ring.style.strokeDashoffset = CIRC * (1 - sec / TOTAL);
+        if(sec >= TOTAL){
+          clearInterval(timer);
+          ring.classList.add('done');
+          status.textContent = '✓ All set — start earning rewards';
+          status.classList.add('confirmed');
+          btn.disabled = false;
+          btn.textContent = 'Show again';
+          running = false;
+        }
+      }, stepMs);
+    }
+
+    btn.addEventListener('click', function(){
+      if(num.textContent === '30'){ reset(); }
+      run();
+    });
+    reset();
+  })();
+</script>
+
+<script>
+  (function(){
+    // Button always shows. On non-Android, also surface a soft "best on Android" note
+    // so we never hide the install button from a real Android user in an in-app browser.
+    var isAndroid = /Android/i.test(navigator.userAgent || "");
+    if(!isAndroid){
+      document.querySelectorAll('.js-gate').forEach(function(el){
+        el.style.display = 'flex';
+        el.setAttribute('aria-hidden','false');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
